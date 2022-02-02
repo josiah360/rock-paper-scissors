@@ -13,6 +13,20 @@ let compScore = 0;
 let computerSelection;
 let playerSelection;
 
+/* Ending elements containing message after game is won or lost*/
+let div = document.createElement('div');
+body.appendChild(div);
+
+let para = document.createElement('p');
+para.className = 'message';
+
+div.appendChild(para)
+div.style.display = 'none';
+
+createButton(div)
+let button = div.lastElementChild;
+resetGame(button);
+
 
 // RANDOMLY PICKS A CHOICE BETWEEN ROCK, SCISSORS AND PAPER
 
@@ -83,7 +97,7 @@ function createButton(parent) {
 function resetGame(button) {
     button.addEventListener('click', () => {
         let parent = button.parentNode;
-        parent.remove();
+        parent.style.display = 'none';
         wrapper.style.display = 'block';
         playerScore = 0;
         compScore = 0;
@@ -95,70 +109,61 @@ function resetGame(button) {
     })
 }
 
-function scoreBoard(func) {
-    let div;
-    let para;
-    let button;
+function scoreBoard() {
 
-    if (playerScore === 5 || compScore === 5) {
+    if (playerScore >= 5 || compScore >= 5) {
         wrapper.style.display = 'none';
-        div = document.createElement('div');
-        body.appendChild(div);
-
-        para = document.createElement('p');
-        para.className = 'message';
-        div.appendChild(para)
+        div.style.display = 'block';
     }
 
     if(playerScore === 5) {
         para.textContent = 'You defeated Computer. Congratulations!';
-        createButton(div)
-        button = div.lastElementChild;
-        func(button);
+        
     }
     else if(compScore === 5) {
         para.textContent = 'You lost to Computer. Try harder next time'
-        createButton(div)
-        button = div.lastElementChild;
-        func(button);
     }
 
-    
-    
 }
 
 
 
 playerSelect.addEventListener('click', event => {
     let button = event.target;
-    if (button.className === 'rock') {
-        playerSelection = 'rock';
-        computerSelection = computerPlay()
-        human.style.backgroundImage = 'url(img/rock-dark.svg)'
-        comp.style.backgroundImage = updateImage(computerSelection, comp)
-    }
-    else if(button.className === 'scissors') {
-        playerSelection = 'scissors';
-        computerSelection = computerPlay()
-        human.style.backgroundImage = 'url(img/scissors-dark.svg)'
-        comp.style.backgroundImage = updateImage(computerSelection, comp)
+    if(button.className !== 'player-selection') {
+        if (button.className === 'rock') {
+            playerSelection = 'rock';
+            computerSelection = computerPlay()
+            human.style.backgroundImage = 'url(img/rock-dark.svg)'
+            comp.style.backgroundImage = updateImage(computerSelection, comp)
+        }
+        else if(button.className === 'scissors') {
+            playerSelection = 'scissors';
+            computerSelection = computerPlay()
+            human.style.backgroundImage = 'url(img/scissors-dark.svg)'
+            comp.style.backgroundImage = updateImage(computerSelection, comp)
+
+        }
+        else if(button.className === 'paper') {
+            playerSelection = 'paper';
+            computerSelection = computerPlay()
+            human.style.backgroundImage = 'url(img/paper-dark.svg)'
+            comp.style.backgroundImage = updateImage(computerSelection, comp)
+        }
+
+        if (playerScore < 5 || compScore < 5) {
+            gameRound(playerSelection, computerSelection); 
+        }
+        
+        animate(message, 'grow');
+        animate(human, 'grow-bg');
+        animate(comp, 'grow-bg');
+
+        setTimeout(scoreBoard, 1000)
 
     }
-    else if(button.className === 'paper') {
-        playerSelection = 'paper';
-        computerSelection = computerPlay()
-        human.style.backgroundImage = 'url(img/paper-dark.svg)'
-        comp.style.backgroundImage = updateImage(computerSelection, comp)
-    }
-
-    gameRound(playerSelection, computerSelection);
-
-    animate(message, 'grow');
-    animate(human, 'grow-bg');
-    animate(comp, 'grow-bg');
-
-    setTimeout(scoreBoard, 1000, resetGame)
 })
+
 
 
 
