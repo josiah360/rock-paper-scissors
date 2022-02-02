@@ -1,5 +1,18 @@
+const body = document.querySelector('body');
+const wrapper = document.querySelector('.wrapper');
+const message = document.querySelector('.message');
+const human = document.querySelector('.human');
+const comp = document.querySelector('.comp');
+const humanScore = document.querySelector('.human-score');
+const compuScore = document.querySelector('.comp-score');
+const playerSelect = document.querySelector('.player-selection');
+
+
 let playerScore = 0;
 let compScore = 0;
+let computerSelection;
+let playerSelection;
+
 
 // RANDOMLY PICKS A CHOICE BETWEEN ROCK, SCISSORS AND PAPER
 
@@ -10,64 +23,147 @@ function computerPlay(){
     return option;
 }
 
-// PLAYS A ROUND OF THE GAME
-// ADDS TO SCORE
-// PRINTS OUT WINNING MESSAGE
+// CHECKS PLAYER AND COMPUTER SELECTIONS
+// ANNOUNCES RESULT OF THE ROUND
+// UPDATES SCORE
 
-function gameRound(play, computer) {
-    let player = play.toLowerCase();
-    let comp = computer.toLowerCase();
-    let message;
+function print(elem, message) {
+    return elem.textContent = message
+}
+
+function gameRound(player, computer) {
 
     switch (true) {
-        case (player === 'rock' && comp === 'scissors'):
-        case (player === 'scissors' && comp === 'paper'):
-        case (player === 'paper' && comp === 'rock'):
-            message = `You won! ${player} beats ${comp}`;
+        case (player === 'rock' && computer === 'scissors'):
+        case (player === 'scissors' && computer === 'paper'):
+        case (player === 'paper' && computer === 'rock'):
+            print(message,`You won! ${player} beats ${computer}`);
             playerScore += 1;
             break;
            
-        case (player === 'scissors' && comp === 'rock'):
-        case (player === 'paper' && comp === 'scissors'):
-        case (player === 'rock' && comp === 'paper'):
-            message = `You Lost! ${comp} beats ${player}`
+        case (player === 'scissors' && computer === 'rock'):
+        case (player === 'paper' && computer === 'scissors'):
+        case (player === 'rock' && computer === 'paper'):
+            print(message, `You Lost! ${computer} beats ${player}`)
             compScore += 1;
             break;
 
         default:
-            message = `It's a draw!`;
+            print(message, `It's a draw!`);
             playerScore += 0;
             compScore += 0;
     }
-
-    return message;
+    print(humanScore, playerScore);
+    print(compuScore, compScore);
 }
 
-// TAKES PLAYER INPUT
-//LOOPS THE GAMES THE NUMBER OF TIMES SPECIFIED
+function updateImage(choice, computer) {
+    if (choice === 'rock') return computer.style.backgroundImage = 'url(img/rock-dark.svg)';
 
-function game(func, rounds) {
-    for(i = 1; i <= rounds; i += 1) {
-        let playerSelection = prompt('Enter your choice: paper, rock or scissors');
-        let computerSelection = computerPlay();
-        console.log(func(playerSelection, computerSelection));
+    else if(choice === 'scissors') return computer.style.backgroundImage = 'url(img/scissors-dark.svg)';
+    
+    else if(choice === 'paper') return computer.style.backgroundImage = 'url(img/paper-dark.svg)'
+}
+
+function animate(elem, klass) {
+    elem.classList.add(klass);
+    setTimeout(function() {
+        elem.classList.remove(klass);
+    }, 500)
+}
+
+function createButton(parent) {
+    let button = document.createElement('button');
+    button.className = 'play-again';
+    button.textContent = 'Play Again';
+
+    parent.appendChild(button);
+}
+
+function resetGame(button) {
+    button.addEventListener('click', () => {
+        let parent = button.parentNode;
+        parent.remove();
+        wrapper.style.display = 'block';
+        playerScore = 0;
+        compScore = 0;
+        print(humanScore, playerScore);
+        print(compuScore, compScore);
+        print(message, 'Pick your choice');
+        human.style.backgroundImage = '';
+        comp.style.backgroundImage = '';
+    })
+}
+
+function scoreBoard(func) {
+    let div;
+    let para;
+    let button;
+
+    if (playerScore === 5 || compScore === 5) {
+        wrapper.style.display = 'none';
+        div = document.createElement('div');
+        body.appendChild(div);
+
+        para = document.createElement('p');
+        para.className = 'message';
+        div.appendChild(para)
     }
+
+    if(playerScore === 5) {
+        para.textContent = 'You defeated Computer. Congratulations!';
+        createButton(div)
+        button = div.lastElementChild;
+        func(button);
+    }
+    else if(compScore === 5) {
+        para.textContent = 'You lost to Computer. Try harder next time'
+        createButton(div)
+        button = div.lastElementChild;
+        func(button);
+    }
+
+    
+    
 }
 
 
-//PRINTS OUT THE FINAL RESULT
 
-function printFinalResult(playaScore, compuScore) {
-    if(playaScore > compuScore) {
-        console.log('YOU WON!');
+playerSelect.addEventListener('click', event => {
+    let button = event.target;
+    if (button.className === 'rock') {
+        playerSelection = 'rock';
+        computerSelection = computerPlay()
+        human.style.backgroundImage = 'url(img/rock-dark.svg)'
+        comp.style.backgroundImage = updateImage(computerSelection, comp)
     }
-    else if (playaScore === compuScore) {
-        console.log('IT\'S A DRAW!');
-    }
-    else {
-        console.log('YOU LOST!');
-    }
-}
+    else if(button.className === 'scissors') {
+        playerSelection = 'scissors';
+        computerSelection = computerPlay()
+        human.style.backgroundImage = 'url(img/scissors-dark.svg)'
+        comp.style.backgroundImage = updateImage(computerSelection, comp)
 
-game(gameRound, 5);
-printFinalResult(playerScore, compScore)
+    }
+    else if(button.className === 'paper') {
+        playerSelection = 'paper';
+        computerSelection = computerPlay()
+        human.style.backgroundImage = 'url(img/paper-dark.svg)'
+        comp.style.backgroundImage = updateImage(computerSelection, comp)
+    }
+
+    gameRound(playerSelection, computerSelection);
+
+    animate(message, 'grow');
+    animate(human, 'grow-bg');
+    animate(comp, 'grow-bg');
+
+    setTimeout(scoreBoard, 1000, resetGame)
+})
+
+
+
+
+
+
+
+
